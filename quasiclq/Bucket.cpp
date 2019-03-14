@@ -30,7 +30,7 @@ Bucket::Bucket(int numItem, int maxVal)
 Cell * Bucket::getFirstItem(int val)
 {
 	if (val < 0 || val >= maxSlotRange) {
-		fprintf(stderr, "Value %d out of range", val);
+		fprintf(stderr, "Value %d out of range\n", val);
 		return nullptr;
 	}
 	return slots[val]; // return the next rather than the current
@@ -172,12 +172,14 @@ void Bucket::db_ShowBucket()
 {
 	for (int i = 0; i < maxSlotRange; i++) {
 		Cell* pcell = getFirstItem(i);
-		printf("Slot[%d]:", i);
-		while (pcell != nullptr) {
-			printf("%d ", pcell->item);
-			pcell = pcell->next;
+		if (pcell != nullptr) {
+			printf("Slot[%d]:", i);
+			while (pcell != nullptr) {
+				printf("%d ", pcell->item);
+				pcell = pcell->next;
+			}
+			printf("\n");
 		}
-		printf("\n");
 	}
 	printf("Min val: %d\n", minNonEmptySlot);
 }

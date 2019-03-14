@@ -95,6 +95,10 @@ void init() {
 	//nNbrInSol = new int[RNumVtx];
 	//memset(nNbrInSol, 0, sizeof(int)* RNumVtx);
 	pbkt = new Bucket(RNumVtx, RNumVtx);
+	for (int v = 0; v < RNumVtx; v++) {
+		pbkt->resetItemValue(v, 0);
+		pbkt->addItem(v);
+	}
 
 	ubEdgeNum = new int[RNumVtx+1];
 	for (int i = 0; i < RNumVtx+1; i++) {
@@ -176,7 +180,7 @@ int createInitSol() {
 			break;
 		}
 	}
-
+	//pbkt->db_ShowBucket();
 	return 0;
 }
 
@@ -188,9 +192,8 @@ int fastFindMinPosVertex() {
 
 int fastFindMinDeltaNonTabu() {
 	int minval = pbkt->minNonemptyVal();
-	int find = 0;
 	int va = -1;
-	while (!find) {
+	while (1) {
 		//tabu aspiration, return the last moved item, which is locate at the end of the linklist,
 		//TODO: imporve the search by make bucket bidirection list.
 		if (minval + vioEdges->vnum < numMinVioEdges) {
@@ -199,20 +202,27 @@ int fastFindMinDeltaNonTabu() {
 				va = p->item;
 				p = p->next;				
 			}
-			find = 1;
 		}
 		else {
+			//pbkt->db_ShowBucket();
 			Cell *p = pbkt->getFirstItem(minval);
-			long long age = LLONG_MAX;
+			long long age = LLONG_MIN;
 			while (p != nullptr) {
 				if (iteration >= tabuIter[p->item] && lastMove[p->item]> age) {
 					va = p->item;
 					age = lastMove[p->item];
 				}
+				p = p->next;
 			}
-			if (va != -1) find = 1;
 		}
-		minval++;
+		if (va != -1 ) {
+			break;
+		}
+		else {
+			minval++;
+			while (pbkt->getFirstItem(minval) == nullptr)
+				minval++;
+		}
 	}
 	assert(minval != RNumVtx);
 	return va;
@@ -349,7 +359,8 @@ void randomTabuSearch() {
 			if ((double)(clock() - clkStart) / CLOCKS_PER_SEC > param_max_secs) {
 				isEnd = 1;
 			}
-			//printf("Iteration %lld: sol size %d, violate percent %.2llf\n", iteration, solSet->vnum, (double)vioEdges->vnum/ubEdgeNum[solSet->vnum]);
+			//printf("Iteration %lld: sol size %d, violate percent %.2llf\n", iteration,
+			//solSet->vnum, (double)vioEdges->vnum/ubEdgeNum[solSet->vnum]);
 		}
 
 		//A legal solution is found, expand the solution until it is illegal
@@ -479,7 +490,7 @@ void showResult() {
 	printf("\n");
 }
 
-int mainXX(int argc, char** argv) {
+int main(int argc, char** argv) {
 	int load = 0;
 
 	read_params(argc, argv); //read parameters

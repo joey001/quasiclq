@@ -166,7 +166,7 @@ namespace SimpleLS {
 	}
 }
 
-int main() {
+int mainXXX() {
 	SimpleLS::main();
 	return 0;
 }
