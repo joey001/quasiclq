@@ -1,7 +1,7 @@
 #include "utils.hpp"
 #include <limits.h>
 #include <math.h>
-
+#include "Bucket.h"
 typedef struct {
 	int v1;
 	int v2;
@@ -18,7 +18,8 @@ int* ubEdgeNum;
 //int numSolEdge;
 RandAccessList* vioEdges; // violated edges
 RandAccessList* solSet; // current solution set
-int* nNbrInSol;
+//int* nNbrInSol;
+Bucket* pbkt;
 long long* tabuIter; // the number of tabu iterations
 long long iteration = 0;
 int numMinVioEdges;
@@ -91,8 +92,9 @@ void init() {
 	solSet = ral_init(RNumVtx);
 	//numSolEdge = 0;
 	vioEdges = ral_init(RNumEdges);
-	nNbrInSol = new int[RNumVtx];
-	memset(nNbrInSol, 0, sizeof(int)* RNumVtx);
+	//nNbrInSol = new int[RNumVtx];
+	//memset(nNbrInSol, 0, sizeof(int)* RNumVtx);
+	pbkt = new Bucket(RNumVtx, RNumVtx);
 
 	ubEdgeNum = new int[RNumVtx+1];
 	for (int i = 0; i < RNumVtx+1; i++) {
@@ -117,13 +119,16 @@ void addVtx(int v) {
 	assert(!ral_contains(solSet, v));
 	ral_add(solSet, v);
 	//numSolEdge += nNbrInSol[v];
+	pbkt->removeItem(v);
 
 	for (int i = 0; i < RNumNbrs[v]; i++) {
 		int vnbr = RNeighborVtx[v][i];
-		nNbrInSol[vnbr] += 1;
+		//nNbrInSol[vnbr] += 1;
+		pbkt->increaseUnitItemValue(vnbr);
 		int eicd = RIncideEdge[v][i];
-		if (ral_contains(solSet, vnbr))
+		if (ral_contains(solSet, vnbr)) {
 			ral_add(vioEdges, eicd);
+		}		
 	}
 }
 
@@ -131,10 +136,13 @@ void removeVtx(int v) {
 	assert(ral_contains(solSet, v));
 	ral_delete(solSet, v);
 	//numSolEdge -= nNbrInSol[v];
+	pbkt->addItem(v);
 
 	for (int i = 0; i < RNumNbrs[v]; i++) {
 		int vnbr = RNeighborVtx[v][i];
-		nNbrInSol[vnbr]--;
+		//nNbrInSol[vnbr]--;
+		pbkt->decreaseUnitItemValue(vnbr);
+
 		int ecid = RIncideEdge[v][i];
 		if (ral_contains(solSet, vnbr)) {
 			ral_delete(vioEdges, ecid);
@@ -144,21 +152,23 @@ void removeVtx(int v) {
 /*Find an init solution by greedy*/
 int createInitSol() {
 	while (1) {
-		int minval = INT_MAX;
+		//the vertex of minimal weight, breaking ties in favor of the minimal degree
+		int mindeg = INT_MAX;
 		int va = -1;
-		for (int v = 0; v < RNumVtx; v++) {
-			if (!ral_contains(solSet, v)) {
-				//the vertex of minimal weight, breaking ties in favor of the minimal degree
-				if (nNbrInSol[v] < minval) {
-					minval = nNbrInSol[v];
-					va = v;
-				}
-				else if (nNbrInSol[v] == minval && RNumNbrs[v] < RNumNbrs[va]) {
-					va = v;
-				}
+		Cell* pcell = pbkt->getMinFirstItem();
+		while (pcell != nullptr) {
+			assert(pcell->isInSlot);
+			if (RNumNbrs[pcell->item] < mindeg) {
+				va = pcell->item;
+				mindeg = RNumNbrs[pcell->item];
 			}
+			else if (RNumNbrs[pcell->item] < mindeg && rand() %2) {
+				va = pcell->item;
+			}
+			pcell = pcell->next;
 		}
-		if (va != -1 && vioEdges->vnum + nNbrInSol[va] <= ubEdgeNum[solSet->vnum + 1]) {
+
+		if (va != -1 && vioEdges->vnum + pbkt->getItemValue(va) <= ubEdgeNum[solSet->vnum + 1]) {
 			addVtx(va);
 			//printf("Add vertex %d\n", va);
 		}
@@ -170,24 +180,44 @@ int createInitSol() {
 	return 0;
 }
 
-int findMinPosVertex() {
-	int minval = INT_MAX;
-	int va = -1;
-	for (int v = 0; v < RNumVtx; v++) {
-		if (!ral_contains(solSet, v)) {
-			//the vertex of minimal weight, breaking ties in favor of the minimal degree
-			if (nNbrInSol[v] < minval) {
-				minval = nNbrInSol[v];
-				va = v;
-			}
-			else if (nNbrInSol[v] == minval && RNumNbrs[v] < RNumNbrs[va]) {
-				va = v;
-			}
-		}
-	}
-	return va;
+//the vertex of minimal weight, breaking ties in favor of the last moved one
+int fastFindMinPosVertex() {
+	Cell *p = pbkt->getMinFirstItem();
+	return p->item;
 }
 
+int fastFindMinDeltaNonTabu() {
+	int minval = pbkt->minNonemptyVal();
+	int find = 0;
+	int va = -1;
+	while (!find) {
+		//tabu aspiration, return the last moved item, which is locate at the end of the linklist,
+		//TODO: imporve the search by make bucket bidirection list.
+		if (minval + vioEdges->vnum < numMinVioEdges) {
+			Cell *p = pbkt->getFirstItem(minval);
+			while (p != nullptr) {
+				va = p->item;
+				p = p->next;				
+			}
+			find = 1;
+		}
+		else {
+			Cell *p = pbkt->getFirstItem(minval);
+			long long age = LLONG_MAX;
+			while (p != nullptr) {
+				if (iteration >= tabuIter[p->item] && lastMove[p->item]> age) {
+					va = p->item;
+					age = lastMove[p->item];
+				}
+			}
+			if (va != -1) find = 1;
+		}
+		minval++;
+	}
+	assert(minval != RNumVtx);
+	return va;
+}
+/*
 int findMinDeltaNonTabu() {
 	int minval = INT_MAX;
 	int vout = -1;
@@ -207,7 +237,7 @@ int findMinDeltaNonTabu() {
 		}
 	}
 	return vout;
-}
+}*/
 
 long long tabuValue(int v) {
 	//return iteration + 11 + (int)(rand() % bestSol.size()*0.4);
@@ -235,7 +265,7 @@ void mildPerturbation() {
 	removeVtx(va);
 	tabuIter[va] = tabuValue(va);
 
-	int vb = findMinDeltaNonTabu();
+	int vb = fastFindMinDeltaNonTabu();
 	addVtx(vb);
 	lastMove[vb] = iteration;
 }
@@ -252,7 +282,7 @@ int strongPerturbation() {
 
 		//Since the iteration counter does not move,
 		//it is not possible to find the vertex which are removed.
-		int vb = findMinDeltaNonTabu();
+		int vb = fastFindMinDeltaNonTabu();
 		addVtx(vb);
 		lastMove[vb] = iteration;
 		//printf("Perturb step %d: rm %d add %d\n", tmp_cnt++, va, vb);
@@ -274,7 +304,7 @@ void incrementLegalSol() {
 			printf("Iteration %lld: Legal sol: %d, Best sol: %d\n", iteration, solSet->vnum, (int)bestSol.size());
 		}
 		//augment a vertex
-		int va = findMinPosVertex();
+		int va = fastFindMinPosVertex();
 		if (va != -1) {
 			addVtx(va);
 			lastMove[va] = iteration;
@@ -359,7 +389,7 @@ void randomTabuSearch() {
 			//printf("Remove %d\n", va);
 
 			//Our solution, find the minium delta
-			int vb = findMinDeltaNonTabu();
+			int vb = fastFindMinDeltaNonTabu();
 			if (vb != -1) {
 				addVtx(vb);
 				lastMove[vb] = iteration;
