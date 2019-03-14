@@ -94,8 +94,8 @@ void init() {
 	nNbrInSol = new int[RNumVtx];
 	memset(nNbrInSol, 0, sizeof(int)* RNumVtx);
 
-	ubEdgeNum = new int[RNumVtx];
-	for (int i = 0; i < RNumVtx; i++) {
+	ubEdgeNum = new int[RNumVtx+1];
+	for (int i = 0; i < RNumVtx+1; i++) {
 		ubEdgeNum[i] = (int)floor((1 - param_gamma) * (i*(i - 1)) / 2);
 	}
 	tabuIter = new long long[RNumVtx];
@@ -113,7 +113,7 @@ void init() {
 	srand(param_seed);
 }
 
-void add(int v) {
+void addVtx(int v) {
 	assert(!ral_contains(solSet, v));
 	ral_add(solSet, v);
 	//numSolEdge += nNbrInSol[v];
@@ -127,7 +127,7 @@ void add(int v) {
 	}
 }
 
-void remove(int v) {
+void removeVtx(int v) {
 	assert(ral_contains(solSet, v));
 	ral_delete(solSet, v);
 	//numSolEdge -= nNbrInSol[v];
@@ -159,7 +159,7 @@ int createInitSol() {
 			}
 		}
 		if (va != -1 && vioEdges->vnum + nNbrInSol[va] <= ubEdgeNum[solSet->vnum + 1]) {
-			add(va);
+			addVtx(va);
 			//printf("Add vertex %d\n", va);
 		}
 		else {
@@ -226,16 +226,17 @@ int findOldestFromSol() {
 			va = rand() % 2 ? va : solSet->vlist[i];
 		}
 	}
+
 	return va;
 }
 void mildPerturbation() {
 	int va = findOldestFromSol();
 	assert(va != -1);
-	remove(va);
+	removeVtx(va);
 	tabuIter[va] = tabuValue(va);
 
 	int vb = findMinDeltaNonTabu();
-	add(vb);
+	addVtx(vb);
 	lastMove[vb] = iteration;
 }
 
@@ -246,13 +247,13 @@ int strongPerturbation() {
 	while (step < maxstp) {
 		//remove the oldest	vertex
 		int va = findOldestFromSol();
-		remove(va);
+		removeVtx(va);
 		tabuIter[va] = tabuValue(va);
 
 		//Since the iteration counter does not move,
 		//it is not possible to find the vertex which are removed.
 		int vb = findMinDeltaNonTabu();
-		add(vb);
+		addVtx(vb);
 		lastMove[vb] = iteration;
 		//printf("Perturb step %d: rm %d add %d\n", tmp_cnt++, va, vb);
 		//The iteration counter is stopped
@@ -275,7 +276,7 @@ void incrementLegalSol() {
 		//augment a vertex
 		int va = findMinPosVertex();
 		if (va != -1) {
-			add(va);
+			addVtx(va);
 			lastMove[va] = iteration;
 			//printf("Add %d to expand legal\n", va);
 			numMinVioEdges = vioEdges->vnum; // update the minimum violated edges
@@ -293,7 +294,17 @@ void incrementLegalSol() {
 
 void randomTabuSearch() {
 	init();
-	createInitSol();
+	//stop if the whole graph is a legal quasi-c
+	if (RNumEdges <= ubEdgeNum[RNumVtx]) {
+		bestSol.clear();
+		for (int v = 0; v < RNumVtx; v++)
+			bestSol.insert(v);
+		bestIter = iteration;
+		bestClk = clock();
+		numBestSolEge = RNumEdges;		
+		return;
+	}
+	createInitSol();	
 	for (int i = 0; i < solSet->vnum; i++) {
 		lastMove[solSet->vlist[i]] = iteration;
 	}
@@ -301,7 +312,6 @@ void randomTabuSearch() {
 	clkStart = clock();
 	int isEnd = 0;
 	int unImporveIt = 0;
-
 	while (!isEnd) {
 		//printf("\n---------------Iteration %lld: Best %d--------\n", iteration, bestSol.size());
 		//ral_showList(solSet, stdout);
@@ -316,7 +326,6 @@ void randomTabuSearch() {
 		if (vioEdges->vnum <= ubEdgeNum[solSet->vnum]) {
 			incrementLegalSol();
 		}
-
 		//Rest the known best solution
 		if (vioEdges->vnum < numMinVioEdges) {
 			numMinVioEdges = vioEdges->vnum;
@@ -326,9 +335,12 @@ void randomTabuSearch() {
 			unImporveIt++;
 		}
 
-		if (unImporveIt >= bestSol.size()) {
-			mildPerturbation();
-			iteration++;
+		if (unImporveIt >= solSet->vnum) {
+			int maxstp = bestSol.size() * 0.1 + 1; // ensure a minimum pertrub step of 1
+			while (maxstp--) {
+				mildPerturbation();
+				iteration++;
+			}			
 			unImporveIt = 0;
 		}
 		else { // local search
@@ -342,14 +354,14 @@ void randomTabuSearch() {
 			else {
 				va = REdges[erand].v2;
 			}
-			remove(va);
+			removeVtx(va);
 			tabuIter[va] = tabuValue(va);
 			//printf("Remove %d\n", va);
 
 			//Our solution, find the minium delta
 			int vb = findMinDeltaNonTabu();
 			if (vb != -1) {
-				add(vb);
+				addVtx(vb);
 				lastMove[vb] = iteration;
 				//printf("Add %d \n", vb);
 			}
@@ -437,7 +449,7 @@ void showResult() {
 	printf("\n");
 }
 
-int main(int argc, char** argv) {
+int mainXX(int argc, char** argv) {
 	int load = 0;
 
 	read_params(argc, argv); //read parameters

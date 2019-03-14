@@ -1,0 +1,44 @@
+
+
+if (unImporveIt >= solSet->vnum) {
+	int maxstp = 10;
+	while (maxstp--) {
+		mildPerturbation();
+		iteration++;
+	}			
+	unImporveIt = 0;
+}
+
+
+frb56-25-1.clq
+0.95
+mastp = 1
+Solution report:
+Time Ave: 13.222; StdVar 9.38
+Iter Ave: 389986.400; StdVar 277915.39
+Obj Ave: 230.50; stdVar 0.50
+
+frb56-25-1.clq
+0.95
+mastp = 10
+Solution report:
+Time Ave: 8.365; StdVar 5.68
+Iter Ave: 244586.400; StdVar s168367.01
+Obj Ave: 230.70; stdVar 0.46
+
+
+frb56-25-1.clq
+0.95
+mastp = 20
+Solution report:
+Time Ave: 5.966; StdVar 4.89
+Iter Ave: 171618.800; StdVar 143779.29
+Obj Ave: 230.30; stdVar 0.46
+
+frb56-25-1.clq
+0.95
+mastp = 30
+Solution report:
+Time Ave: 9.359; StdVar 8.03
+Iter Ave: 248608.900; StdVar 224353.26
+Obj Ave: 230.60; stdVar 0.49

@@ -1,15 +1,18 @@
 #include "utils.hpp"
 
 
-//char param_graph_file_name[1024] = "instances\\brock200_2.clq";
-// char param_graph_file_name[1024] = "instances\\C250.9.clq";
+//char param_graph_file_name[1024] = "D:\\Home\\benchmarks\\splex\\2nd_dimacs\\brock200_2.clq";
+//char param_graph_file_name[1024] = "D:\\Home\\benchmarks\\splex\\2nd_dimacs\\MANN_a45.clq";
 //char param_graph_file_name[1024] = "instances\\test1.clq";
-//char param_graph_file_name[1024] = "instances\\frb56-25-5.clq";
+char param_graph_file_name[1024] = "D:\\Home\\vsworkspace\\quasiclq\\quasiclq\\instances\\frb56-25-1.clq";
+
 double param_gamma = 0.95;
 int param_best = 99999;
-int param_max_secs = 10;
+int param_max_secs = 30;
 unsigned int param_seed = 12345; // initial seed
 
+int param_alpha = 1;
+int param_beta = 0.3;
 
 /*original graph, the structure is kept the same,
 * but the id of vertices are renumbered, the original
