@@ -263,3 +263,5 @@ __pycache__/
 /quasiclq/quasiclq.vcxproj.filters
 /quasiclq.sln
 /quasiclq/instances
+T*sh.e*
+T*sh.o*
