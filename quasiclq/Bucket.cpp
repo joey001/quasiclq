@@ -196,7 +196,7 @@ void test1()
 	bkt.db_ShowBucket();
 }
 
-int main() {
+int mainXXXX() {
 	test1();
 
 }

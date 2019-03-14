@@ -36,7 +36,7 @@ namespace SimpleLS {
 
 	void addVtx(int vtx) {
 		assert(!ral_contains(solset, vtx));
-
+		
 		ral_add(solset, vtx);
 		if (ral_contains(cands, vtx)) {
 			ral_delete(cands, vtx);
@@ -166,7 +166,7 @@ namespace SimpleLS {
 	}
 }
 
-int mainX() {
+int main() {
 	SimpleLS::main();
 	return 0;
 }
