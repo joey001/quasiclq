@@ -11,8 +11,7 @@ int param_best = 99999;
 int param_max_secs = 30;
 unsigned int param_seed = 12345; // initial seed
 
-int param_alpha = 1;
-int param_beta = 0.3;
+
 
 /*original graph, the structure is kept the same,
 * but the id of vertices are renumbered, the original

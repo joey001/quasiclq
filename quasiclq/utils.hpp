@@ -57,6 +57,8 @@ extern int GENum;	//The number of edges in the input graph
 extern int GFmt;	// The format, currently unimportant
 extern int* GNumNbrs;
 extern int** GNbrLst;
+extern int param_alpha;
+extern double param_beta;
 
 const char* file_suffix(char* filename);
 const char* file_basename(char* filename);

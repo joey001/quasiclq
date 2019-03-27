@@ -7,6 +7,9 @@ typedef struct {
 	int v2;
 }EdgeType;
 
+int param_alpha = 5;
+double param_beta = 0.25;
+
 int RNumEdges; // number of edges in the complement graph
 int RNumVtx;
 EdgeType* REdges;
@@ -35,7 +38,7 @@ int numBestSolEge;
 set<int> bestSol;
 int bestIter;
 clock_t bestClk;
-
+const double EConst = 2.71828;
 
 void init() {
 	//Transfer the graph into complement graph
@@ -166,7 +169,7 @@ int createInitSol() {
 				va = pcell->item;
 				mindeg = RNumNbrs[pcell->item];
 			}
-			else if (RNumNbrs[pcell->item] < mindeg && rand() %2) {
+			else if (RNumNbrs[pcell->item] < mindeg && rand() % 2) {
 				va = pcell->item;
 			}
 			pcell = pcell->next;
@@ -206,9 +209,9 @@ int fastFindMinDeltaNonTabu() {
 		else {
 			//pbkt->db_ShowBucket();
 			Cell *p = pbkt->getFirstItem(minval);
-			long long age = LLONG_MIN;
+			long long age = LLONG_MAX;
 			while (p != nullptr) {
-				if (iteration >= tabuIter[p->item] && lastMove[p->item]> age) {
+				if (iteration >= tabuIter[p->item] && lastMove[p->item]< age) {
 					va = p->item;
 					age = lastMove[p->item];
 				}
@@ -218,7 +221,7 @@ int fastFindMinDeltaNonTabu() {
 		if (va != -1 ) {
 			break;
 		}
-		else {
+		else { // adjust the min value
 			minval++;
 			while (pbkt->getFirstItem(minval) == nullptr)
 				minval++;
@@ -266,19 +269,9 @@ int findOldestFromSol() {
 			va = rand() % 2 ? va : solSet->vlist[i];
 		}
 	}
-
 	return va;
 }
-void mildPerturbation() {
-	int va = findOldestFromSol();
-	assert(va != -1);
-	removeVtx(va);
-	tabuIter[va] = tabuValue(va);
 
-	int vb = fastFindMinDeltaNonTabu();
-	addVtx(vb);
-	lastMove[vb] = iteration;
-}
 
 int strongPerturbation() {
 	int maxstp = solSet->vnum - 1; //remove until the last one
@@ -332,6 +325,40 @@ void incrementLegalSol() {
 }
 
 
+void randomPerturbation() {
+	int minage = INT_MAX, maxage = INT_MIN;
+
+	for (int i = 0; i < solSet->vnum; i++) {
+		if (minage > lastMove[solSet->vlist[i]]) minage = lastMove[solSet->vlist[i]];
+		if (maxage < lastMove[solSet->vlist[i]]) maxage = lastMove[solSet->vlist[i]];
+	}
+	//printf("min %d - max %d\n", minage, maxage);
+	double delta = maxage - minage;
+	vector<int> toMove;
+	//Prob  p=  e^((age)/(detla*beta))
+	for (int i = 0; i < solSet->vnum; i++) {
+		int v = solSet->vlist[i];
+		int gap = lastMove[v] - minage;
+		double ratio = (double) gap /delta;
+		double probs = pow(EConst, - ratio/param_beta);
+		if ((rand() % 100) < (probs * 100)) {
+			toMove.push_back(v);
+			//printf("%d: MoveGap %d, ratio %.2f, Prob %.3f, Move\n", v, gap, ratio, probs);
+		}
+		
+	}
+	//perform perturb
+	for (unsigned int i = 0; i < toMove.size(); i++) {
+		int va = toMove[i];
+		removeVtx(va);
+		tabuIter[va] = tabuValue(va);
+		
+		int vb = fastFindMinDeltaNonTabu();
+		addVtx(vb);
+		lastMove[vb] = iteration;
+	}	
+	
+}
 void randomTabuSearch() {
 	init();
 	//stop if the whole graph is a legal quasi-c
@@ -351,7 +378,8 @@ void randomTabuSearch() {
 
 	clkStart = clock();
 	int isEnd = 0;
-	int unImporveIt = 0;
+	//int unImporveIt = 0;
+	int cycleIt = 0;
 	while (!isEnd) {
 		//printf("\n---------------Iteration %lld: Best %d--------\n", iteration, bestSol.size());
 		//ral_showList(solSet, stdout);
@@ -365,24 +393,19 @@ void randomTabuSearch() {
 
 		//A legal solution is found, expand the solution until it is illegal
 		if (vioEdges->vnum <= ubEdgeNum[solSet->vnum]) {
-			incrementLegalSol();
+			incrementLegalSol();			
+			cycleIt = 1;
 		}
 		//Rest the known best solution
 		if (vioEdges->vnum < numMinVioEdges) {
 			numMinVioEdges = vioEdges->vnum;
-			unImporveIt = 0;
-		}
-		else {
-			unImporveIt++;
 		}
 
-		if (unImporveIt >= solSet->vnum) {
-			int maxstp = bestSol.size() * 0.1 + 1; // ensure a minimum pertrub step of 1
-			while (maxstp--) {
-				mildPerturbation();
-				iteration++;
-			}			
-			unImporveIt = 0;
+		if (cycleIt % (param_alpha * solSet->vnum) == 0 ) { // parameter alpha
+			//int maxstp = bestSol.size() * 0.1 + 1; // ensure a minimum pertrub step of 1
+			randomPerturbation();
+			iteration++;
+			cycleIt++;
 		}
 		else { // local search
 		   //In solution, select a random edge, select the old vertex (smaller ageVtx)
@@ -407,6 +430,7 @@ void randomTabuSearch() {
 				//printf("Add %d \n", vb);
 			}
 			iteration++;
+			cycleIt++;
 		}
 
 	}
@@ -445,6 +469,12 @@ int read_params(int argc, char **argv) {
 			param_max_secs = atoi(argv[i + 1]);
 			hasTimeLimit = 1;
 		}
+		else if (argv[i][1] == 'a') {
+			param_alpha = atoi(argv[i + 1]);
+		}
+		else if (argv[i][1] == 'b') {
+			param_beta = atof(argv[i + 1]);
+		}
 	}
 	/*check parameters*/
 	/*
@@ -473,6 +503,8 @@ void showResult() {
 	printf("@para_file=%s\n", param_graph_file_name);
 	printf("@para_gamma=%.2f\n", param_gamma);
 	printf("@para_kbv=%d\n", param_best);
+	printf("@para_alpha=%d\n", param_alpha);
+	printf("@para_beta=%.2f\n", param_beta);
 	printf("@para_seconds=%d\n", param_max_secs);
 	printf("#vnum=%d\n", GVNum);
 	printf("#enum=%d\n", GENum);

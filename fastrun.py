@@ -24,6 +24,7 @@ if __name__ == '__main__':
 	objs=[]
 	times=[]
 	iters=[]
+	totiters = []
 	
 	for rtime in range(runTime):
 		if rerun:
@@ -60,13 +61,15 @@ if __name__ == '__main__':
 			times.append(float(formatDict['besttime']))
 			objs.append(int(formatDict['objv']))
 			iters.append(int(formatDict['bestiter']))
+			totiters.append(int(formatDict['totaliter']))			
 		except KeyError, e:
 			print >>sys.stderr, 'Key error:',e
 
 		lno+=1
 	print 'Solution report:'
 	print 'Time Ave: %.3f; StdVar %.2f'%(np.mean(times),np.std(times))
-	print 'Iter Ave: %.3f; StdVar %.2f'%(np.mean(iters),np.std(iters))
+	print 'Iter Ave: %.3f; StdVar %.2f'%(np.mean(iters),np.std(iters))	
 	print 'Obj Ave: %.2f; stdVar %.2f'%(np.mean(objs), np.std(objs))
+	print 'Tot iter ave: %.3f; StdVar %.2f'%(np.mean(totaliter), np.std(totaliter))
 	
 	
