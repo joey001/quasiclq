@@ -1,0 +1,3 @@
+C:/ACM/Quasiclq/quasiclq/build/CMakeFiles/quasiclq.dir
+C:/ACM/Quasiclq/quasiclq/build/CMakeFiles/ALL_BUILD.dir
+C:/ACM/Quasiclq/quasiclq/build/CMakeFiles/ZERO_CHECK.dir
