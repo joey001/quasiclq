@@ -1,4 +1,3 @@
-#pragma once
 #include<climits>
 struct ST_Cell {
 	ST_Cell* next;
