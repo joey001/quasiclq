@@ -7,6 +7,16 @@ typedef struct {
 	int v2;
 }EdgeType;
 
+//char param_graph_file_name[1024] = "D:\\Home\\benchmarks\\splex\\2nd_dimacs\\brock200_2.clq";
+//char param_graph_file_name[1024] = "D:\\Home\\benchmarks\\splex\\2nd_dimacs\\MANN_a45.clq";
+//char param_graph_file_name[1024] = "instances\\test1.clq";
+char param_graph_file_name[1024] = "D:\\Home\\vsworkspace\\quasiclq\\quasiclq\\instances\\frb56-25-1.clq";
+//char param_graph_file_name[1024] = "instances\\PG_1.clq";
+double param_gamma = 0.95;
+int param_best = 99999;
+int param_max_secs = 30;
+unsigned int param_seed = 12345; // initial seed
+
 int param_alpha = 5;
 double param_beta = 0.25;
 
@@ -30,7 +40,6 @@ long long *lastMove;
 
 int* startSolMark; // mark the start solution
 int startSim;	//record similarity.
-
 
 clock_t clkStart;
 clock_t clkEnd;
