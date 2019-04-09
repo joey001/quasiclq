@@ -4,8 +4,8 @@ import os.path
 import random
 import itertools
 
-fold = sys.argv[2];
-cmdPath = sys.argv[3];
+fold = sys.argv[1];
+cmdPath = sys.argv[2];
 cmdfile = open(cmdPath,'w')
 
 gammalst = (0.80, 0.85, 0.90, 0.95)
