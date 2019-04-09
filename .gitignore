@@ -283,4 +283,4 @@ _deps
 
 .vscode/*
 Scripts/cmd.*
-.output/*
+output/*
