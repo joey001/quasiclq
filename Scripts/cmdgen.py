@@ -41,7 +41,8 @@ for root, dir, files in os.walk(fold):
 			#print 'Inst (%s %d) alpha: %d, beta %.2f'%(f,gamma,alpha, beta)			
 			randnum = random.randint(0,2147483647)
 			cmdstr = r'./mqcp -f %s -k %.2f -a %d -b %.2f -c %d -t %d'%(fulpath, gamma, alpha, beta, randnum, tmcutoff)
-			cmdstr = ' > output/' + str(cnt) + '.out'
+			cmdstr = cmdstr + ' > output' + os.sep + str(cnt) + '.out'
+			cnt = cnt + 1
 			#print cmdstr
 			cmdfile.write(cmdstr+'\n')
 
