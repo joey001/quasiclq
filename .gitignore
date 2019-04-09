@@ -282,5 +282,5 @@ CTestTestfile.cmake
 _deps
 
 .vscode/*
-Scripts/cmd.txt
+Scripts/cmd.*
 .output/*.out
