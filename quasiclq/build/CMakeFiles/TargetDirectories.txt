@@ -1,3 +1,0 @@
-/home/Harry/code/quasiclq/quasiclq/build/CMakeFiles/edit_cache.dir
-/home/Harry/code/quasiclq/quasiclq/build/CMakeFiles/rebuild_cache.dir
-/home/Harry/code/quasiclq/quasiclq/build/CMakeFiles/quasiclq.dir
