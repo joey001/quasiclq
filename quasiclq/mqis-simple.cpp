@@ -2,6 +2,7 @@
 #include <limits.h>
 #include <math.h>
 #include "Bucket.h"
+#include "args.hxx"
 typedef struct {
 	int v1;
 	int v2;
@@ -454,6 +455,54 @@ int read_params(int argc, char **argv) {
 	int hasFile = 0;
 	int hasTimeLimit = 0;
 	int isGammaValid = 0;
+
+	args::ArgumentParser parser(
+		"FLSQ: A Fast Local Search Algorithm for finding maximum gamma-quasi-cliques\n",
+		"[Zhou et al., 2019] Yi Zhou, Zhenyu Guo, Jin-Kao Hao\n");
+	
+	args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
+	args::Group required(parser, "", args::Group::Validators::All);
+	
+	args::ValueFlag<std::string> benchmark_file(
+		parser, "benchmark", "Path to benchmark, DIMACS and SNAP"
+		"formats are supported.", {'f', "file"}, "benchmark/Even_3000.clq");
+
+	args::ValueFlag<double> gamma(parser, "gamma", "The parameter gamma, which should be in (0, 1)", {'k', "gamma"}, 0.95);
+
+	args::ValueFlag<int> best(parser, "best", "The best objective value as you known, which is used to accelerate the algorithm.", {'o', "best"}, 99999);
+
+	args::ValueFlag<int> seed(parser, "seed", "Seed due to the randomness", {'c', "seed"}, 12345);
+
+	args::ValueFlag<int> timeLim(parser, "time", "The cutdown time in second.", {'t', "time"}, 30);
+
+	args::ValueFlag<int> alpha(parser, "alpha", "The parameter alpha", {'a', "alpha"}, 5);
+
+	args::ValueFlag<double> beta(parser, "beta", "The parameter beta", {'b', "beta"}, 0.25);
+
+	try {
+		parser.ParseCLI(argc, argv);
+	} catch(args::Help) {
+		std::cout << parser;
+		return 0;
+	} catch(args::ParseError e) {
+		std::cerr << e.what() << std::endl;
+		std::cerr << parser;
+		return 0;
+	} catch (args::ValidationError e) {
+		std::cerr << e.what() << std::endl;
+		std::cerr << parser;
+		return 0;
+  	}
+
+	strncpy(param_graph_file_name, args::get(benchmark_file).c_str(), 1000);
+	param_gamma = args::get(gamma);
+	param_best = args::get(best);
+	param_seed = args::get(seed);
+	param_max_secs = args::get(timeLim);
+	param_alpha = args::get(alpha);
+	param_beta = args::get(beta);
+	/*
+
 	for (int i = 1; i < argc; i += 2) {
 		if (argv[i][0] != '-' || argv[i][2] != 0) {
 			showUsage();
@@ -485,6 +534,7 @@ int read_params(int argc, char **argv) {
 			param_beta = atof(argv[i + 1]);
 		}
 	}
+	*/
 	/*check parameters*/
 	/*
 	if (!hasFile) {
@@ -534,7 +584,9 @@ void showResult() {
 int main(int argc, char** argv) {
 	int load = 0;
 
-	read_params(argc, argv); //read parameters
+	auto paraFlag = read_params(argc, argv); //read parameters
+
+	if (!paraFlag) return 0;
 
 	const char* fileext = file_suffix(param_graph_file_name);
 	//printf("%s\n",fileext);
