@@ -11,8 +11,8 @@ cmdfile = open(cmdPath,'w')
 gammalst = (0.80, 0.85, 0.90, 0.95)
 alphalst = (1,2,4,8,16,32,64)
 betalst = (0.1,0.2,0.4,0.8,1.6,3.2,6.4)
-runcnt = 10
-tmcutoff = 240
+runcnt = 5
+tmcutoff = 30
 
 
 def density(f):
@@ -37,10 +37,10 @@ for root, dir, files in os.walk(fold):
 		fltgammalst = filter(lambda x: x>dens+0.05, gammalst)
 		#				
 		print ('inst %s, dens %.2f, %s'%(f,dens, fltgammalst))
-		for gamma,alpha,beta,itrcnt in itertools.product(fltgammalst, alphalst, betalst, range(5)):			
+		for gamma,alpha,beta,itrcnt in itertools.product(fltgammalst, alphalst, betalst, range(runcnt)):			
 			#print 'Inst (%s %d) alpha: %d, beta %.2f'%(f,gamma,alpha, beta)			
 			randnum = random.randint(0,2147483647)
-			cmdstr = r'./mqcp -f %s -k %.2f -a %d -b %.2f -c %d -t %d'%(fulpath, gamma, alpha, beta, randnum, tmcutoff)
+			cmdstr = r'.' + os.sep + r'mqcp -f %s -k %.2f -a %d -b %.2f -c %d -t %d'%(fulpath, gamma, alpha, beta, randnum, tmcutoff)
 			cmdstr = cmdstr + ' > output' + os.sep + str(cnt) + '.out'
 			cnt = cnt + 1
 			#print cmdstr
