@@ -25,6 +25,11 @@ def density(f):
 			en = int(enstr)			
 			return float(2*en)/(vn*(vn-1))
 			
+cnt = 0
+
+if os.path.exists('output') == False:
+	os.makedirs('output')
+
 for root, dir, files in os.walk(fold):
 	for f in files:
 		fulpath = os.path.join(root, f)
@@ -36,6 +41,7 @@ for root, dir, files in os.walk(fold):
 			#print 'Inst (%s %d) alpha: %d, beta %.2f'%(f,gamma,alpha, beta)			
 			randnum = random.randint(0,2147483647)
 			cmdstr = r'./mqcp -f %s -k %.2f -a %d -b %.2f -c %d -t %d'%(fulpath, gamma, alpha, beta, randnum, tmcutoff)
+			cmdstr = ' > output/' + str(cnt) + '.out'
 			#print cmdstr
 			cmdfile.write(cmdstr+'\n')
 
