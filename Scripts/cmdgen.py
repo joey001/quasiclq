@@ -40,7 +40,8 @@ for root, dir, files in os.walk(fold):
 		for gamma,alpha,beta,itrcnt in itertools.product(fltgammalst, alphalst, betalst, range(runcnt)):			
 			#print 'Inst (%s %d) alpha: %d, beta %.2f'%(f,gamma,alpha, beta)			
 			randnum = random.randint(0,2147483647)
-			cmdstr = r'.' + os.sep + r'mqcp -f %s -k %.2f -a %d -b %.2f -c %d -t %d'%(fulpath, gamma, alpha, beta, randnum, tmcutoff)
+			appPath = '.' + os.sep + 'quasiclq' + os.sep + 'bin' + os.sep + 'quasiclq'
+			cmdstr = appPath + r' -f %s -k %.2f -a %d -b %.2f -c %d -t %d'%(fulpath, gamma, alpha, beta, randnum, tmcutoff)
 			cmdstr = cmdstr + ' > output' + os.sep + str(cnt) + '.out'
 			cnt = cnt + 1
 			#print cmdstr
