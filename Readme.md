@@ -1,7 +1,7 @@
-## Quasiclq
+# Quasiclq
 Quasiclq is an implement of a quasi-clique problem algorithm.
 
-# Running Command
+## Running Command
 ```
 ./bin/quasiclq {OPTIONS}
 ```
@@ -25,7 +25,7 @@ Quasiclq is an implement of a quasi-clique problem algorithm.
 
     [Zhou et al., 2019] Yi Zhou, Zhenyu Guo, Jin-Kao Hao
 
-# Scripts
+## Scripts
 python3 must be supported
 ```
 python Scripts/cmdgen.py [benchmark director path] [command list text path]
