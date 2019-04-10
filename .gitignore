@@ -284,3 +284,5 @@ _deps
 .vscode/*
 script/cmd.*
 output/*
+
+benchmark/*
