@@ -34,6 +34,8 @@ for root, dir, files in os.walk(fold):
 	for f in files:
 		fulpath = os.path.join(root, f)
 		dens = density(fulpath)		
+		print(dens)
+		print(fulpath)
 		fltgammalst = filter(lambda x: x>dens+0.05, gammalst)
 		fltgammalst = list(fltgammalst)
 		if len(fltgammalst) == 0:
