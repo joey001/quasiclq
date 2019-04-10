@@ -35,8 +35,10 @@ for root, dir, files in os.walk(fold):
 		fulpath = os.path.join(root, f)
 		dens = density(fulpath)		
 		fltgammalst = filter(lambda x: x>dens+0.05, gammalst)
+		if len(fltgammalst) == 0:
+			continue
 		#				
-		print ('inst %s, dens %.2f, %s'%(f,dens, fltgammalst))
+		print ('inst %s, dens %.2f, %s'%(f,dens, str(fltgammalst)))
 		for gamma,alpha,beta,itrcnt in itertools.product(fltgammalst, alphalst, betalst, range(runcnt)):			
 			#print 'Inst (%s %d) alpha: %d, beta %.2f'%(f,gamma,alpha, beta)			
 			randnum = random.randint(0,2147483647)
