@@ -9,8 +9,8 @@ cmdPath = sys.argv[2];
 cmdfile = open(cmdPath,'w')
 
 gammalst = (0.80, 0.85, 0.90, 0.95)
-alphalst = (1,2,4,8,16,32,64)
-betalst = (0.1,0.2,0.4,0.8,1.6,3.2,6.4)
+alphalst = [4]
+betalst = [0.4]
 runcnt = 5
 tmcutoff = 30
 
