@@ -28,6 +28,6 @@ Quasiclq is an implement of a quasi-clique problem algorithm.
 ## Scripts
 python3 must be supported
 ```
-python Scripts/cmdgen.py [benchmark director path] [command list text path]
-python Scripts/zipOutput.py
+python script/cmdgen.py [benchmark director path] [command list text path]
+python script/zipOutput.py
 ```
