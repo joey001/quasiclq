@@ -286,3 +286,5 @@ script/cmd.*
 output/*
 
 benchmark/*
+/quasiclq/benchmark
+/quasiclq/readme.txt

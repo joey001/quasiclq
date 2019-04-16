@@ -205,10 +205,11 @@ int fastFindMinPosVertex() {
 
 int fastFindMinDeltaNonTabu() {
 	int minval = pbkt->minNonemptyVal();
-	int va = -1;
+	int va;
 	while (1) {
 		//tabu aspiration, return the last moved item, which is locate at the end of the linklist,
 		//TODO: imporve the search by make bucket bidirection list.
+		va = -1;
 		if (minval + vioEdges->vnum < numMinVioEdges) {
 			Cell *p = pbkt->getFirstItem(minval);
 			while (p != nullptr) {
@@ -354,6 +355,10 @@ void randomPerturbation() {
 		if ((rand() % 100) < (probs * 100)) {
 			toMove.push_back(v);
 			//printf("%d: MoveGap %d, ratio %.2f, Prob %.3f, Move\n", v, gap, ratio, probs);
+			//The number of removed vertices should be smaller the the outside candidates
+			if (toMove.size() == RNumVtx - solSet->vnum) {
+				break; 
+			}
 		}
 		
 	}
