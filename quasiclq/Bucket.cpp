@@ -36,6 +36,10 @@ Cell * Bucket::getFirstItem(int val)
 	return slots[val]; // return the next rather than the current
 }
 
+int Bucket::getMaxSlotRange() {
+	return maxSlotRange;
+}
+
 Cell * Bucket::getMinFirstItem()
 {
 	return slots[minNonEmptySlot];
@@ -182,6 +186,18 @@ void Bucket::db_ShowBucket()
 		}
 	}
 	printf("Min val: %d\n", minNonEmptySlot);
+}
+
+pair<int, vector<int> *> Bucket::convertToVector() {
+	vector<int> * BB = new vector<int> [maxSlotRange];
+	for (int i = 0; i < maxSlotRange; i++) {
+		Cell * pcell = getFirstItem(i);
+		while (pcell != nullptr) {
+			BB[i].push_back(pcell->item);
+			pcell = pcell->next;
+		}
+	}
+	return {maxSlotRange, BB};
 }
 
 int Bucket::isEmpty()

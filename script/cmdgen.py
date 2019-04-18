@@ -11,7 +11,7 @@ cmdfile = open(cmdPath,'w')
 gammalst = (0.80, 0.85, 0.90, 0.95)
 alphalst = [4]
 betalst = [0.4]
-runcnt = 2
+runcnt = 8
 tmcutoff = 120
 
 

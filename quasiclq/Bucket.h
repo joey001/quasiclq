@@ -1,4 +1,5 @@
 #include<climits>
+#include "utils.hpp"
 struct ST_Cell {
 	ST_Cell* next;
 	ST_Cell* prev;
@@ -40,6 +41,10 @@ public:
 	//int changeItemVal(int it, int delta);
 	void db_ShowBucket();
 	int isEmpty();
+
+	pair<int, vector<int> *> convertToVector();
+	int getMaxSlotRange();
+
 	~Bucket();
 };
 
