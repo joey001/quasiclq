@@ -4,6 +4,8 @@ Quasiclq is an implement of a quasi-clique problem algorithm.
 
 ## Running Command
 
+### FLSQ
+
 ```bash
 ./quasiclq/bin/quasiclq {OPTIONS}
 ```
@@ -26,6 +28,8 @@ Quasiclq is an implement of a quasi-clique problem algorithm.
       -b[beta], --beta=[beta]           The parameter beta
 
     [Zhou et al., 2019] Yi Zhou, Zhenyu Guo, Jin-Kao Hao
+
+### HC3
 
 ```bash
 ./hc3/bin/hc3 {OPTIONS}
