@@ -9,9 +9,9 @@ cmdPath = sys.argv[2];
 cmdfile = open(cmdPath,'w')
 
 gammalst = (0.80, 0.85, 0.90, 0.95)
-alphalst = [4]
+alphalst = [0.01]
 betalst = [0.4]
-runcnt = 8
+runcnt = 10
 tmcutoff = 120
 
 
@@ -45,8 +45,8 @@ for root, dir, files in os.walk(fold):
 		for gamma,alpha,beta,itrcnt in itertools.product(fltgammalst, alphalst, betalst, range(runcnt)):			
 			#print 'Inst (%s %d) alpha: %d, beta %.2f'%(f,gamma,alpha, beta)			
 			randnum = random.randint(0,2147483647)
-			appPath = '.' + os.sep + 'quasiclq' + os.sep + 'bin' + os.sep + 'quasiclq'
-			cmdstr = appPath + r' -f %s -k %.2f -a %d -b %.2f -c %d -t %d'%(fulpath, gamma, alpha, beta, randnum, tmcutoff)
+			appPath = '.' + os.sep + 'hc3' + os.sep + 'bin' + os.sep + 'hc3'
+			cmdstr = appPath + r' -f %s -k %.2f -a %.2f -c %d -t %d'%(fulpath, gamma, alpha, randnum, tmcutoff)
 			cmdstr = cmdstr + ' > output' + os.sep + str(cnt) + '.out'
 			cnt = cnt + 1
 			#print cmdstr
