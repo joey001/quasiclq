@@ -48,7 +48,7 @@ def dealFile(path):
 	if (t in solutions):
 		solutions[t] = solutions[t] + objv
 	else:
-		solutions[t] = objv;
+		solutions[t] = objv
 
 def writeToCsv(name, gamma):
 	headers = ['alpha', 'beta', 'objv']

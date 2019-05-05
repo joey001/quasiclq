@@ -3,16 +3,26 @@
 #include <functional>
 #include <iostream>
 #include <sstream>
+#include <ctime>
 #include <vector>
 #include "args.hxx"
 
 #define BITSIZE 4010
+
+std::string filePath;
 
 struct Parameters {
     double gamma;
     int seed;
     int timeLim;
     double alpha;
+
+    void output() {
+        std::cout << "'gamma': " << gamma << ", "
+                  << "'seed': " << seed << ", "
+                  << "'timeLim': " << timeLim << ", "
+                  << "'alpha': " << alpha;
+    }
 };
 
 int n, m;
@@ -119,7 +129,7 @@ bool input(int argc, char *argv[]) {
         return 0;
     }
 
-    std::string filePath = args::get(benchmark_file);
+    filePath = args::get(benchmark_file);
 
     Param.gamma = args::get(gamma);
     Param.alpha = args::get(alpha);
@@ -127,12 +137,11 @@ bool input(int argc, char *argv[]) {
     Param.timeLim = args::get(timeLim);
 
     std::ifstream ifs(filePath.c_str());
-    std::stringstream ss;
     std::string buff;
 
     while (std::getline(ifs, buff)) {
         std::string tmp;
-        ss.clear();
+        std::stringstream ss;
         ss << buff;
         ss >> tmp;
         if (tmp == "c") continue;
@@ -146,6 +155,7 @@ bool input(int argc, char *argv[]) {
             Nei[v].set(u);
         }
     }
+    ifs.close();
     return 1;
 }
 
@@ -155,6 +165,7 @@ int pickFromRCL() {
 }
 
 void init() {
+    for (int v = 1; v <= n; ++v) V.insert(v);
     RCL.clear();
     for (int v = 1; v <= n; ++v) RCL.push_back({V.deg(v), v});
     std::sort(RCL.begin(), RCL.end(), std::greater<std::pair<int, int> >());
@@ -163,8 +174,6 @@ void init() {
     Stemp.insert(x);
 
     ktemp = 1;
-
-    for (int v = 1; v <= n; ++v) V.insert(v);
 }
 
 int x2(int x) { return x * (x - 1) / 2; }
@@ -209,13 +218,30 @@ void work() {
     ktemp = (double)Stemp.E / x2(Stemp.V.size());
 }
 
+void output(time_t t) {
+    std::cout << "{";
+    std::cout << "'path': "
+              << "'" << filePath << "', ";
+    Param.output();
+    std::cout << ", 'time': " << (double)t / CLOCKS_PER_SEC;
+    std::cout << ", 'obj': " << S.V.size();
+    std::cout << "}";
+}
+
 int main(int argc, char *argv[]) {
-    input(argc, argv);
-	srand(Param.seed);
+    bool inputFlag = input(argc, argv);
+    if (inputFlag == false) return 0;
+
+    srand(Param.seed);
     init();
+
+    time_t start = clock();
 
     while (ktemp >= Param.gamma) {
         work();
     }
+
+    time_t finish = clock();
+    output(finish - start);
     return 0;
 }
